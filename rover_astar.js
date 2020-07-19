@@ -18,7 +18,7 @@ function make_grid() {
 }
 
 function final_path(prev, node){
-  var total_path[];
+  var total_path = [];
   total_path.prepend(current);
   while (prev.includes(current)){
         current = prev[current];
@@ -87,9 +87,9 @@ function start_end(){
 
 function A_star(start, end){
 
-var openSet[];          //openSet keeps track of all the nodes that have not been visited
-var closedSet[];        //closedSet keeps track of all visited nodes
-var previous[];         //previous keeps track of the previous node in the path for each node
+var openSet = [];          //openSet keeps track of all the nodes that have not been visited
+var closedSet = [];        //closedSet keeps track of all visited nodes
+var previous = [];         //previous keeps track of the previous node in the path for each node
 
 start.g = 0;
 start.h = heuristic(start, end);
