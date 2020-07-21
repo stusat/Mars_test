@@ -3,7 +3,9 @@ var rows = 20;
 var grid = new Array(cols);     //array of columns to make a grid
 
 function make_grid() {    
-
+  createCanvas(400,400);
+  console.log('A*');
+  
   //loop to make an array of columns i.e a 2D array
   for(var i = 0; i < cols; i++){
     grid[i] = new Array(rows);
@@ -15,6 +17,8 @@ function make_grid() {
       grid[i][j] = node_values(i,j);
     }
   }
+  
+  console.log(grid);
 }
 
 function final_path(prev, node){
@@ -46,6 +50,8 @@ function node_values(i,j){
   this.g = Infinity;
   this.f = Infinity;
   this.h = 0;             //f = g + h, formula for A* algorithm
+  this.w = width/cols;
+  this.h = height/rows;
   this.neighbors = [];    //stores all neighboring cells of a cell
   this.previous = undefined;
   
@@ -78,11 +84,30 @@ function node_values(i,j){
       this.neighbors.push(grid[i+1][j+1]);      //cell below and to the right
     }
   } //end of addNeighbors()
+  
+  this.wall = false;
+
+  if(random(1) < 0.3){
+    this.wall = true;
+  }
+  
+  this.show = function(col){    //show function to highlight the spot
+    fill(col);
+    
+    if(this.wall){
+      fill(0);
+    }
+    noStroke();
+    rect(this.i*w, this.j*h,w-1,h-1);
+  }
+  
 } //end of node_values()  
 
 function start_end(){
   start = grid[0][0];                 //marking starting point at [0][0]
+  start.wall = false;
   end = grid[rows - 1][cols - 1];     //marking end point at [rows-1][cols-1]
+  end.wall = false;
 }  
 
 function A_star(start, end){
@@ -117,18 +142,55 @@ while(openSet.length){
       var neighbor = neighbors[i];
       
       if(neighbor == end) {
+         console.log('Path found');
          final_path(previous, neighbor);
          break;
       }
-      
-      var tempG = current.g + 1;            //tempG = current.g + weight of edge between current and neighbor, assumed to be 1
-      if(tempG < neighbor.g){
-          neighbor.g = tempG;
-          neighbor.f = neighbor.g + heuristic(neighbor,end);
-          previous[neighbor] = current;
-      }
     
-      if (!openSet.includes(neighbor)) openSet.push(neighbor);
-   }
- }
-} 
+      if(!neighbor.wall){
+          var tempG = current.g + 1;            //tempG = current.g + weight of edge between current and neighbor, assumed to be 1
+          if(tempG < neighbor.g){               //if tempG < neighbor.g, it means a better path has been found 
+              neighbor.g = tempG;
+              neighbor.f = neighbor.g + heuristic(neighbor,end);
+              previous[neighbor] = current;
+        
+              if (!openSet.includes(neighbor)) openSet.push(neighbor);    //bring neighbor to openSet if a better path through it is found
+          }
+      } //end of if statement
+    
+    }  //end of for loop of neighbors
+   if(!openSet.length) console.log("Path not possible");
+ }   //end of while loop
+  
+  
+} //end of function A_star
+
+function grid_ui(){
+  background(0);
+  for(var i = 0; i < cols; i++ ){
+    for(var j = 0; j < rows; j++ ){
+      grid[i][j].show(color(255));
+    }
+  }
+
+  for(var i=0;i < closedSet.length; i++){
+    closedSet[i].show(color(255,0,0));
+  }
+
+  for(var i=0;i < openSet.length; i++){
+    openSet[i].show(color(0,255,0));
+  }
+
+  for(var i=0; i < total_path.length; i++){
+      total_path[i].show(color(0,0,255));
+  }
+
+    noFill();
+    stroke(255);
+    beginShape();
+    for(var i=0; i < path.length; i++){
+      vertex(path[i].i*w + w/2, path[i].j*h + h/2);
+    }
+} //end of grid_ui function
+  
+  
